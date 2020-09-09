@@ -28,13 +28,16 @@ ip_add_nas=""
 nas_user="taichi"
 
 ## password for nas user.
-password="baggio1981id"
+password="xxxxxxxxxx"
 
-## mounted directory path on nas.
+## nas directory to be mounted on nas.
 mounted_dir="t_data"
 
+## home directory
+home_dir="/Users/Taiti"
+
 ## mount directory path on pc.
-mount_dir="/Users/Taiti/mnt/nas_iodata"
+mount_dir="${home_dir}/mnt/nas_iodata"
 
 ## backup source directory on pc.
 src_dir1="Documents"
@@ -44,10 +47,10 @@ src_dir4="Music"
 src_dir5="Movies"
 
 ## backup source directory path on pc.
-src_dir_path="/Users/Taiti"
+#src_dir_path="/Users/Taiti"
 
 ## backup destination directory path on nas
-dst_dir="/Users/Taiti/mnt/nas_iodata/macbook_backup"
+dst_dir="${mount_dir}/macbook_backup"
 
 
 ### Find nas IP Address from network segment.
@@ -72,13 +75,13 @@ mount -t smbfs -w //${nas_user}:${password}@${ip_add_nas}/${mounted_dir} ${mount
 
 ### sync data.
 
-rsync -ahv --delete ${src_dir_path}/${src_dir1} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir1}.log &
-rsync -ahv --delete ${src_dir_path}/${src_dir2} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir2}.log &
-rsync -ahv --delete ${src_dir_path}/${src_dir3} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &
-rsync -ahv --delete ${src_dir_path}/${src_dir4} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir4}.log &
-rsync -ahv --delete ${src_dir_path}/${src_dir5} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir5}.log &
+echo "rsync -ahv ${home_dir}/${src_dir3}/ ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &"
+rsync -ahv --delete ${home_dir}/${src_dir1}/ ${dst_dir}/${src_dir1}/ > ${SCRIPT_DIR}/rsync_${src_dir1}.log &
+rsync -ahv --delete ${home_dir}/${src_dir2}/ ${dst_dir}/${src_dir2}/ > ${SCRIPT_DIR}/rsync_${src_dir2}.log &
+rsync -ahv --delete ${home_dir}/${src_dir3}/ ${dst_dir}/${src_dir3}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &
+rsync -ahv --delete ${home_dir}/${src_dir4}/ ${dst_dir}/${src_dir4}/ > ${SCRIPT_DIR}/rsync_${src_dir4}.log &
+rsync -ahv --delete ${home_dir}/${src_dir5}/ ${dst_dir}/${src_dir5}/ > ${SCRIPT_DIR}/rsync_${src_dir5}.log &
 
 ### unmount nas
- # ex)umount /Users/Taiti/mnt/nas_iodata
 umount ${mount_dir}
-
+ # ex)umount /Users/Taiti/mnt/nas_iodata
