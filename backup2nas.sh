@@ -1,9 +1,19 @@
 #!/bin/sh
 
+### # # #  #  #  #    #    #    #        #                #                               #
+###      Script to backup macbook files to nas.
+### # # #  #  #  #    #    #    #        #                #                               #
+
+### This script Searches nas ip address with correct mac address of nas from mac book, mount to nas, and sync backup files.
+### * nas product name is HDL-AAX2 producted by io-data.
+
+#set -e
+
 ### store a value in variable.
 
 ## Shell directory
-CURRENT=$(cd $(dirname $0;pwd))
+SCRIPT_DIR=$(cd $(dirname $0); pwd)
+echo ${SCRIPT_DIR}
 
 ## network address.
 seg_nw="192.168.0"
@@ -33,19 +43,22 @@ src_dir3="Pictures"
 src_dir4="Music"
 src_dir5="Movies"
 
+## backup source directory path on pc.
+src_dir_path="/Users/Taiti"
+
 ## backup destination directory path on nas
 dst_dir="/Users/Taiti/mnt/nas_iodata/macbook_backup"
 
 
 ### Find nas IP Address from network segment.
 
-## try all ip address in network segment.
+## Try all ip address in network segment.
 for ip_address in `seq 1 254`;do
- ## try ping command, arp command, grep command with mac address of nas to every number, and get mac address, if ever.
-   #mac_add=$(ping -c 1 -W 0.5 192.168.0.$a > /dev/null && arp 192.168.0.$a | cut -d " " -f 4 2>&1)
+
+  ## Try ping command, arp command, grep command with mac address of nas by every ip, and get mac address, if ever.
   mac_add=$(ping -c 1 -W 0.5 ${seg_nw}.${ip_address} > /dev/null && arp ${seg_nw}.${ip_address} | cut -d " " -f 4 2>&1)
 
-  ## Finding correct mac address, get ip address of nas.
+  ## Compare mac address with one of nas, get ip address of nas.
   if [ "${mac_add}" = "${mac_add_nas}" ]; then
      ip_add_nas="${seg_nw}.${ip_address}"
      #echo ${ip_add_nas}
@@ -53,19 +66,19 @@ for ip_address in `seq 1 254`;do
   fi;
 done
 
-### mount do nas.
-mount -t smbfs //${nas_user}:${password}@${ip_add_nas}/${mounted_dir} ${mount_dir}
- #mount -t smbfs //taichi:baggio1981id@192.168.0.105/t_data ~/mnt/nas_iodata
-
+### mount to nas.
+mount -t smbfs -w //${nas_user}:${password}@${ip_add_nas}/${mounted_dir} ${mount_dir}
+ # ex) mount -t smbfs //taichi:baggio1981id@192.168.0.105/t_data ~/mnt/nas_iodata
 
 ### sync data.
-#rsync -az --delete ~/${src_dir1}/* ${dst_dir}/${src_dir1}/
-rsync -ahv --delete ~/${src_dir2}/* ${dst_dir}/${src_dir2}/ 2>&1 CURRENT/backup2nas.log
-#rsync -az --delete ~/${src_dir3}/* ${dst_dir}/${src_dir3}/
-#rsync -az --delete ~/${src_dir4}/* ${dst_dir}/${src_dir4}/
-#rsync -az --delete ~/${src_dir5}/* ${dst_dir}/${src_dir5}/
- #rsync -az --delete ~/Documents/* /Users/Taiti/mnt/nas_iodata/macbook_backup/Documents/
 
+rsync -ahv --delete ${src_dir_path}/${src_dir1} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir1}.log &
+rsync -ahv --delete ${src_dir_path}/${src_dir2} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir2}.log &
+rsync -ahv --delete ${src_dir_path}/${src_dir3} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &
+rsync -ahv --delete ${src_dir_path}/${src_dir4} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir4}.log &
+rsync -ahv --delete ${src_dir_path}/${src_dir5} ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir5}.log &
+
+### unmount nas
+ # ex)umount /Users/Taiti/mnt/nas_iodata
 umount ${mount_dir}
- #umount /Users/Taiti/mnt/nas_iodata
 
