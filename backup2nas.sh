@@ -1,14 +1,20 @@
 #!/bin/sh
 
 ### # # #  #  #  #    #    #    #        #                #                               #
-###      Script to backup macbook files to nas.
-### # # #  #  #  #    #    #    #        #                #                               #
+###
+### Script to backup macbook files to NAS.
+
+### This script works at macbook with following flow.
+###  1. It compares mac address found in a network segment with correct one to search NAS.
+###  2. Let macbook mount to NAS.
+###  3. Sync files to backup.
 
 ### This script Searches nas ip address with correct mac address of nas from mac book, mount to nas, and sync backup files.
 ### * Backup data : Documents, codes, Pictures, Music and Movies.
 ### * Backup destination : Directory to share with family on NAS.
 ### * NAS Product information : HDL-AAX2 / io-data.
-
+###
+### # # #  #  #  #    #    #    #        #                #                               #
 
 ### Store a value in variable.
 
@@ -54,22 +60,21 @@ for ip_address in `seq 1 254`;do
   ## Compare mac address with one of nas, get ip address of nas.
   if [ "${mac_add}" = "${nas_mac_address}" ]; then
      ip_add_nas="${seg_nw}.${ip_address}"
-     #echo ${ip_add_nas}
      break
   fi;
 done
 
+### unmount nas
+umount ${mount_dir}
+
 ### Mount to nas.
-mount -t smbfs -w //${nas_user}:${nas_password}@${ip_add_nas}/${mounted_dir} ${mount_dir}
+mount -t smbfs -w //${nas_user}:${nas_password}@${ip_add_nas}/${mounted_dir} ${mount_dir} || exit 1
 
 ### Sync data.
 
-echo "rsync -ahv ${home_dir}/${src_dir3}/ ${dst_dir}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &"
 rsync -ahv --delete ${home_dir}/${src_dir1}/ ${dst_dir}/${src_dir1}/ > ${SCRIPT_DIR}/rsync_${src_dir1}.log &
 rsync -ahv --delete ${home_dir}/${src_dir2}/ ${dst_dir}/${src_dir2}/ > ${SCRIPT_DIR}/rsync_${src_dir2}.log &
 rsync -ahv --delete ${home_dir}/${src_dir3}/ ${dst_dir}/${src_dir3}/ > ${SCRIPT_DIR}/rsync_${src_dir3}.log &
 rsync -ahv --delete ${home_dir}/${src_dir4}/ ${dst_dir}/${src_dir4}/ > ${SCRIPT_DIR}/rsync_${src_dir4}.log &
 rsync -ahv --delete ${home_dir}/${src_dir5}/ ${dst_dir}/${src_dir5}/ > ${SCRIPT_DIR}/rsync_${src_dir5}.log &
 
-### unmount nas
-umount ${mount_dir}
